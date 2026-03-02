@@ -38,7 +38,7 @@ class AdminScreen extends ConsumerWidget {
                   subtitle: const Text('Crear perfils per a la Filà'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    // TODO: Navegar a la pantalla de crear miembro
+                    context.push('/create-member');
                   },
                 ),
                 const Divider(height: 1, indent: 56),

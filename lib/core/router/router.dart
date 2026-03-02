@@ -17,6 +17,7 @@ import '../../features/events/domain/models/event_model.dart'; // <--- AÑADE ES
 import '../../features/events/presentation/screens/event_detail_screen.dart'; // <--- AÑADE EST
 import '../../features/admin/presentation/screens/admin_screen.dart';
 import '../../features/admin/presentation/screens/family_screen.dart';
+import '../../features/admin/presentation/screens/create_member_screen.dart';
 
 // Clave global para el navegador raíz (para diálogos o login full screen)
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -78,6 +79,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/family',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const FamilyScreen(),
+      ),
+
+      GoRoute(
+        path: '/create-member',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CreateMemberScreen(),
       ),
 
       // SHELL ROUTE (Barra de navegación persistente)

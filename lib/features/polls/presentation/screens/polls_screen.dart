@@ -13,7 +13,8 @@ class PollsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pollsAsync = ref.watch(pollsProvider);
-    final isAdmin = true; // Cambiar por tu lógica real de roles
+    final profile = ref.watch(currentProfileProvider).value;
+    final isAdmin = profile?.rol == 'admin' ?? false;
 
     return DefaultTabController(
       length: 2,

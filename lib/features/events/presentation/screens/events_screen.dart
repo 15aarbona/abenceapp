@@ -15,7 +15,7 @@ class EventsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     // Verificamos si el usuario puede crear eventos (Admin o Miembro)
     final profile = ref.watch(currentProfileProvider).value;
-    final canCreate = profile != null && (profile.isAdmin || profile.rol == 'miembro');
+    final canCreate = profile?.rol != 'nino';
 
     return DefaultTabController(
       length: 2,
