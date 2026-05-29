@@ -25,11 +25,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check active sessions and sets the user
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await fetchUserData(session.user.id);
+      console.log('📡 Buscant sessió a Supabase...');
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        console.log('📡 Sessió trobada:', session ? 'SÍ' : 'NO');
+        if (session) {
+          await fetchUserData(session.user.id);
+        }
+      } catch (err) {
+        console.error('❌ Error en getSession:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getSession();
