@@ -13,7 +13,9 @@ import { Layout } from './components/Layout';
 function AppContent() {
   const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
+
   console.log('🧐 AppContent - Loading:', loading, 'User:', user);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-bg">
@@ -26,7 +28,12 @@ function AppContent() {
   }
 
   if (!user) {
-    return <LoginPage />;
+    console.log('🚪 Renderitzant LoginPage...');
+    return (
+      <div id="login-container">
+        <LoginPage />
+      </div>
+    );
   }
 
   const renderPage = () => {
