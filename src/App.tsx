@@ -14,26 +14,19 @@ function AppContent() {
   const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
 
-  console.log('🧐 AppContent - Loading:', loading, 'User:', user);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-bg">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-fila-red border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400 text-sm">Carregant...</p>
+          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400 text-sm font-medium">Carregant la Filà...</p>
         </div>
       </div>
     );
   }
 
   if (!user) {
-    console.log('🚪 Renderitzant LoginPage...');
-    return (
-      <div id="login-container">
-        <LoginPage />
-      </div>
-    );
+    return <LoginPage />;
   }
 
   const renderPage = () => {

@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 
 console.log('🚀 Aplicació iniciant-se...');
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   console.error('❌ No s\'ha trobat l\'element #root al HTML!');

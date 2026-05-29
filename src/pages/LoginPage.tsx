@@ -15,17 +15,26 @@ export function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
+    // Timeout de seguretat
+    const timer = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        setError('El servidor tarda massa en respondre. Revisa la teua connexió.');
+      }
+    }, 10000);
+
     const result = await login(email, password);
+    clearTimeout(timer);
+    
     if (result.error) {
       setError(result.error);
     }
     setLoading(false);
   };
 
-  console.log('🏗️ LoginPage iniciant renderitzat...');
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4">
-      <div className="fixed top-0 left-0 p-2 text-[10px] text-white opacity-20">DEBUG: LOGIN_PAGE_LOADED</div>
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-fila-red/10 rounded-full blur-3xl" />

@@ -79,17 +79,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<{ error?: string }> => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error: 'Correu o contrasenya incorrectes' };
-    }
+    console.log('🔐 Intentant login per a:', email);
     
-    // fetchUserData will be called by onAuthStateChange
-    return {};
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('❌ Error de Supabase Auth:', error.message);
+        return { error: error.message };
+      }
+
+      console.log('✅ Login d\'Auth correcte, esperant dades de perfil...');
+      if (data.user) {
+        await fetchUserData(data.user.id);
+      }
+      return {};
+    } catch (err: any) {
+      console.error('💥 Error catastròfic en login:', err);
+      return { error: err.message || 'Error desconegut' };
+    }
   };
 
   const logout = async () => {

@@ -12,6 +12,7 @@ if (!supabaseAnonKey) console.error('❌ VITE_SUPABASE_ANON_KEY no definida!');
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
+    storageKey: 'fila-app-auth',
     autoRefreshToken: true,
     detectSessionInUrl: true
   }
