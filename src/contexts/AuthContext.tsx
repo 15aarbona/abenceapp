@@ -26,6 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check active sessions and sets the user
     const getSession = async () => {
       console.log('📡 Buscant sessió a Supabase...');
+      
+      // Fem que si tarda més de 6 segons, l'app no es quede penjada
+      const timeout = setTimeout(() => {
+        console.warn('⚠️ La sessió de Supabase està tardant massa. Forçant càrrega...');
+        setLoading(false);
+      }, 6000);
+
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
@@ -37,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error('❌ Error en getSession:', err);
       } finally {
+        clearTimeout(timeout);
         setLoading(false);
       }
     };
