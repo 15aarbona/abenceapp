@@ -23,7 +23,11 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
   };
 
   return (
-    <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
+    <button 
+      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} 
+      style={{ minHeight: '44px', minWidth: '100px', border: '1px solid #C41E3A' }} 
+      {...props}
+    >
       {children}
     </button>
   );
