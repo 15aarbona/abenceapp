@@ -1,0 +1,13 @@
+# Llibreries (pesen massa i es reinstal·len)
+node_modules/
+
+# Carpeta de producció (es genera en cada build)
+dist/
+
+# Fitxers de sistema
+.DS_Store
+Thumbs.db
+
+# Variables d'entorn (SENSE ELLS NO PODEN ENTRAR AL TEU SUPABASE)
+.env
+.env.local
