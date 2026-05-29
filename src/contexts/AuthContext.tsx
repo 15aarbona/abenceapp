@@ -22,106 +22,94 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check active sessions and sets the user
-    const getSession = async () => {
-      console.log('📡 Buscant sessió a Supabase...');
-      
-      // Fem que si tarda més de 6 segons, l'app no es quede penjada
-      const timeout = setTimeout(() => {
-        console.warn('⚠️ La sessió de Supabase està tardant massa. Forçant càrrega...');
-        setLoading(false);
-      }, 6000);
+  // Funció centralitzada per a carregar dades de l'usuari
+  const fetchUserData = async (userId: string) => {
+    console.log('🔍 Recuperant perfil de la BD per a:', userId);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle(); // maybeSingle és més segur que single si l'usuari no existeix encara
 
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        
-        console.log('📡 Sessió trobada:', session ? 'SÍ' : 'NO');
-        if (session) {
-          await fetchUserData(session.user.id);
-        }
-      } catch (err) {
-        console.error('❌ Error en getSession:', err);
-      } finally {
-        clearTimeout(timeout);
-        setLoading(false);
+      if (error) {
+        console.error('❌ Error recuperant perfil:', error.message);
+        return null;
       }
-    };
+      
+      if (!data) {
+        console.warn('⚠️ L\'usuari existeix en Auth però no en la taula "users"');
+      }
 
-    getSession();
+      return data;
+    } catch (err) {
+      console.error('💥 Error inesperat en fetchUserData:', err);
+      return null;
+    }
+  };
 
-    // Listen for changes on auth state
+  useEffect(() => {
+    console.log('🏗️ Iniciant AuthProvider...');
+
+    // Escoltador d'estat d'autenticació (gestiona inici, tancament i sessió persistent)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        await fetchUserData(session.user.id);
+      console.log('🔔 Canvi d\'estat Auth:', event);
+      
+      if (session?.user) {
+        const profile = await fetchUserData(session.user.id);
+        setUser(profile);
       } else {
         setUser(null);
       }
+      
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const fetchUserData = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching user metadata:', error);
-      return;
-    }
-    setUser(data);
-  };
-
   const login = async (email: string, password: string): Promise<{ error?: string }> => {
-    console.log('🔐 Intentant login per a:', email);
-    
+    console.log('🔐 Intentant login...');
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('❌ Error de Supabase Auth:', error.message);
-        return { error: error.message };
+        console.error('❌ Error de login:', error.message);
+        return { error: 'Correu o contrasenya incorrectes' };
       }
 
-      console.log('✅ Login d\'Auth correcte, esperant dades de perfil...');
-      if (data.user) {
-        await fetchUserData(data.user.id);
-      }
+      // No cal fer res més, onAuthStateChange s'encarregarà de carregar l'usuari
       return {};
     } catch (err: any) {
-      console.error('💥 Error catastròfic en login:', err);
-      return { error: err.message || 'Error desconegut' };
+      return { error: err.message || 'Error en la connexió' };
     }
   };
 
   const logout = async () => {
+    console.log('🚪 Tancant sessió...');
     await supabase.auth.signOut();
     setUser(null);
   };
 
   const updateUser = async (updates: Partial<User>): Promise<{ error?: string }> => {
-    if (!user) return { error: 'No hi ha usuari' };
+    if (!user) return { error: 'No hi ha usuari actiu' };
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', user.id);
 
-    const { error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', user.id);
-
-    if (error) {
-      return { error: error.message };
+      if (error) throw error;
+      setUser({ ...user, ...updates });
+      return {};
+    } catch (err: any) {
+      return { error: err.message };
     }
-
-    setUser({ ...user, ...updates });
-    return {};
   };
 
   return (
@@ -132,4 +120,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
-export const DEMO_USERS_LIST: User[] = []; // We will fetch users from DB now
+export const DEMO_USERS_LIST: User[] = [];

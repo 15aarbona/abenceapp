@@ -13,24 +13,23 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setError('');
     setLoading(true);
     
-    // Timeout de seguretat
-    const timer = setTimeout(() => {
-      if (loading) {
+    try {
+      const result = await login(email.trim(), password.trim());
+      if (result.error) {
+        setError(result.error);
         setLoading(false);
-        setError('El servidor tarda massa en respondre. Revisa la teua connexió.');
       }
-    }, 10000);
-
-    const result = await login(email, password);
-    clearTimeout(timer);
-    
-    if (result.error) {
-      setError(result.error);
+      // Si no hi ha error, no fem setLoading(false) ací, 
+      // ja que App.tsx mostrarà la càrrega global fins que AuthContext estiga llest.
+    } catch (err) {
+      setError('Error inesperat al iniciar sessió.');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
