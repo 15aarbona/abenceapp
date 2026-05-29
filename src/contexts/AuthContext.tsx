@@ -24,40 +24,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Funció centralitzada per a carregar dades de l'usuari
   const fetchUserData = async (userId: string) => {
-    console.log('🔍 Recuperant perfil de la BD per a:', userId);
+    console.log('🔍 Intentant llegir taula "users" per a:', userId);
+    
+    // Creem una promesa que falla als 4 segons per a no bloquejar l'app
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout BD')), 4000)
+    );
+
     try {
-      const { data, error } = await supabase
+      const fetchPromise = supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle(); // maybeSingle és més segur que single si l'usuari no existeix encara
+        .maybeSingle();
+
+      const result = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      const { data, error } = result;
 
       if (error) {
-        console.error('❌ Error recuperant perfil:', error.message);
+        console.error('❌ Error BD:', error.message);
         return null;
       }
       
-      if (!data) {
-        console.warn('⚠️ L\'usuari existeix en Auth però no en la taula "users"');
-      }
-
+      console.log('✅ Perfil rebut:', data ? 'TROBAT' : 'BUIT');
       return data;
     } catch (err) {
-      console.error('💥 Error inesperat en fetchUserData:', err);
+      console.warn('⚠️ No s\'ha pogut recuperar el perfil a temps (possible RLS o connexió)');
       return null;
     }
   };
 
   useEffect(() => {
-    console.log('🏗️ Iniciant AuthProvider...');
+    console.log('🏗️ AuthProvider carregat');
 
-    // Escoltador d'estat d'autenticació (gestiona inici, tancament i sessió persistent)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔔 Canvi d\'estat Auth:', event);
+      console.log('🔔 Auth Event:', event);
       
       if (session?.user) {
         const profile = await fetchUserData(session.user.id);
-        setUser(profile);
+        // Si no hi ha perfil, creem un objecte temporal per a que l'app no falle
+        setUser(profile || { 
+          id: session.user.id, 
+          email: session.user.email || '', 
+          nombre: 'Usuari', 
+          apellidos: '', 
+          is_admin: false 
+        } as any);
       } else {
         setUser(null);
       }
