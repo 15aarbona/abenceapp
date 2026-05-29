@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-// These will be configured by the admin
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('⚠️ Falten les variables d\'entorn de Supabase! Revisa el panell de Netlify.');
+}
+
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
