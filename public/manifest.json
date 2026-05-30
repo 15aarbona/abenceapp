@@ -1,0 +1,18 @@
+{
+  "name": "Filà App - Moros i Cristians",
+  "short_name": "Filà App",
+  "description": "Aplicació oficial de la Filà de Moros i Cristians",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#C41E3A",
+  "icons": [
+    {
+      "src": "/images/fila-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
