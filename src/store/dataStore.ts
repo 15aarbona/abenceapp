@@ -181,12 +181,23 @@ export const dataStore = {
     return data || [];
   },
   addOrderResponse: async (or: Omit<OrderResponse, 'id' | 'created_at'>) => {
+    console.log('📦 Enviant comanda a BD:', or);
     const { data, error } = await supabase
       .from('order_responses')
-      .upsert([or], { onConflict: 'order_id,user_id' })
+      .upsert({
+        order_id: or.order_id,
+        user_id: or.user_id,
+        items: or.items
+      }, { 
+        onConflict: 'order_id,user_id' 
+      })
       .select()
       .single();
-    if (error) throw error;
+    
+    if (error) {
+      console.error('❌ Error guardant comanda:', error);
+      throw error;
+    }
     return data;
   },
 
