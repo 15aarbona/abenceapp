@@ -36,7 +36,20 @@ export function VotesPage() {
     setLoading(true);
     try {
       const data = await dataStore.getVotes();
-      setVotes(data);
+      
+      // Ordenació dinàmica: Obertes primer, Tancades després
+      const sortedVotes = [...data].sort((a, b) => {
+        const isAOpen = a.fecha_cierre >= today;
+        const isBOpen = b.fecha_cierre >= today;
+        
+        if (isAOpen && !isBOpen) return -1;
+        if (!isAOpen && isBOpen) return 1;
+        
+        // Si les dues són del mateix tipus, ordenem per data
+        return a.fecha_cierre.localeCompare(b.fecha_cierre);
+      });
+      
+      setVotes(sortedVotes);
     } catch (error) {
       console.error('Error fetching votes:', error);
     }

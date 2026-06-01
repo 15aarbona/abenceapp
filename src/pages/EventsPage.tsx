@@ -50,7 +50,24 @@ export function EventsPage() {
     setLoading(true);
     try {
       const data = await dataStore.getEvents();
-      setEvents(data);
+      
+      // Ordenació dinàmica: Futurs primer, Passats després
+      const sortedEvents = [...data].sort((a, b) => {
+        const isAPast = a.fecha_evento < today;
+        const isBPast = b.fecha_evento < today;
+        
+        if (!isAPast && isBPast) return -1;
+        if (isAPast && !isBPast) return 1;
+        
+        // Si els dos són futurs, el més pròxim primer
+        // Si els dos són passats, el més recent primer
+        if (isAPast) {
+          return b.fecha_evento.localeCompare(a.fecha_evento);
+        }
+        return a.fecha_evento.localeCompare(b.fecha_evento);
+      });
+      
+      setEvents(sortedEvents);
     } catch (error) {
       console.error('Error fetching events:', error);
     }
